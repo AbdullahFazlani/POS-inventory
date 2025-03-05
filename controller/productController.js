@@ -57,11 +57,25 @@ export const createProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.find();
+    const totalProducts = await Product.countDocuments();
+    const lowStockCount = await Product.countDocuments({ stock: { $lt: 10 } });
+    const totalInventoryValueResult = await Product.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalValue: { $sum: { $multiply: ["$price", "$quantity"] } },
+        },
+      },
+    ]);
+
+    // Extract the value or return 0 if no products exist
+    const totalInventoryValue = totalInventoryValueResult[0]?.totalValue || 0;
+
     return successResponce(
       res,
       "Products retrieved successfully",
       StatusCodes.OK,
-      products
+      { products, totalProducts, lowStockCount, totalInventoryValue }
     );
   } catch (error) {
     return errorResponse(
