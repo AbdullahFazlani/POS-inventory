@@ -156,3 +156,4 @@ export const deleteCustomer = async (req, res) => {
     );
   }
 };
+// add all the customers
