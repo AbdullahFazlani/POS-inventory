@@ -64,7 +64,11 @@ export const recordPayment = async (req, res) => {
 // Get all customers
 export const getAllCustomers = async (req, res) => {
   try {
-    const customers = await Customer.find();
+    const customers = await Customer.find().populate({
+      path: "invoiceCreditDebit.invoiceId", // nested populate
+      model: "Invoice",
+    });
+
     return successResponce(
       res,
       "Customers retrieved successfully",

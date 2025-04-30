@@ -110,6 +110,8 @@ export const createInvoice = async (req, res) => {
           return 0;
         case "unpaid":
           return grandTotal;
+        default:
+          return grandTotal;
       }
     };
     // Update customer's debit and balance
@@ -153,21 +155,21 @@ export const getInvoices = async (req, res) => {
   }
 
   try {
-    const invoices = await Invoice.find(filter).populate("products.product");
+    const invoices = await Invoice.find(filter)
+      .populate("products.product") // populates full product info
+      .populate("customer"); // add this line to populate customer
 
     // Calculate total sales
     let totalSales = 0;
     invoices.forEach((invoice) => {
-      totalSales += invoice.totalAmount; // Assuming totalAmount field exists
+      totalSales += invoice.totalAmount;
     });
 
-    // res.status(200).json({ invoices, totalSales });
     successResponce(res, "Invoices retrieved successfully", StatusCodes.OK, {
       invoices,
       totalSales,
     });
   } catch (error) {
-    // res.status(500).json({ message: "Server error", error });
     errorResponse(res, "Server Error", StatusCodes.INTERNAL_SERVER_ERROR);
   }
 };
