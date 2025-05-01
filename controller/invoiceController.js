@@ -72,8 +72,8 @@ export const createInvoice = async (req, res) => {
       switch (status) {
         case "paid":
           return "paid";
-        case "partial":
-          return "partial";
+        case "unpaid":
+          return "unpaid";
         case "return":
           return "return";
         default:
@@ -88,7 +88,7 @@ export const createInvoice = async (req, res) => {
       totalAmount,
       tax: tax || 0,
       grandTotal,
-      paymentStatus: setPaymentStatus(billStatus),
+      paymentStatus: setPaymentStatus(billStatus.toLowerCase()),
     });
     // console.log(newInvoice);
     const invoiceData = await newInvoice.save();
@@ -116,7 +116,8 @@ export const createInvoice = async (req, res) => {
     };
     // Update customer's debit and balance
     customer.invoiceCreditDebit.push({
-      debit: getDebitBill(billStatus),
+      debit: getDebitBill(billStatus.toLowerCase()),
+      //   debit: billStatus === "return" ? 0 : grandTotal,
       credit: billStatus === "return" ? grandTotal : 0,
       invoiceId: invoiceData._id,
     });
